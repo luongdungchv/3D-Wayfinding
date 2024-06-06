@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DL.Utils;
 using Sirenix.Utilities;
 using UnityEngine;
@@ -13,6 +14,8 @@ public class GridSystem : MonoBehaviour
     [SerializeField] private List<Color> colorList;
     [SerializeField] private List<Vector2Int> edgeLog;
 
+
+    private AStarPathfinder pathFinder = new AStarPathfinder();
     private int cellsPerEdge => cellsPerDim * 2;
 
     private int[,] occupationMatrix;
@@ -29,12 +32,12 @@ public class GridSystem : MonoBehaviour
     public void Initialize()
     {
         occupationMatrix = new int[cellsPerEdge, cellsPerEdge];
-        visualizerMatrix = new GameObject[cellsPerEdge, cellsPerEdge];
-        visualizerMatrix.Loop((x, y) =>
-        {
-            var item = Instantiate(cellVisualizerPrefab, new Vector3(x * cellSize, 0, y * cellSize), Quaternion.identity);
-            visualizerMatrix[x, y] = item;
-        });
+        // visualizerMatrix = new GameObject[cellsPerEdge, cellsPerEdge];
+        // visualizerMatrix.Loop((x, y) =>
+        // {
+        //     var item = Instantiate(cellVisualizerPrefab, new Vector3(x * cellSize, 0, y * cellSize), Quaternion.identity);
+        //     visualizerMatrix[x, y] = item;
+        // });
     }
     [Sirenix.OdinInspector.Button]
     public void AddRectangleObstacle(Vector2 center, Vector2 extend, float rotation)
@@ -91,7 +94,7 @@ public class GridSystem : MonoBehaviour
             }
         }
         currentID++;
-        UpdateVisualizer();
+        //UpdateVisualizer();
     }
 
     [Sirenix.OdinInspector.Button]
@@ -198,6 +201,14 @@ public class GridSystem : MonoBehaviour
         }
 
         return ((int)(minX / cellSize), (int)(maxX / cellSize), (int)(minY / cellSize), (int)(maxY / cellSize));
+    }
+
+    public List<Vector2> FindPath(Vector3 start, Vector3 end){
+        var cellStartCoord = WorldToCellCoord(start);
+        var cellEndCoord = WorldToCellCoord(end);
+        var initResult = this.pathFinder.FindPath(this.occupationMatrix, cellStartCoord, cellEndCoord);
+        var result = initResult.Select(x => (Vector2)x * cellSize + Vector2.one * cellSize / 2).ToList();
+        return result;
     }
 
     private void UpdateVisualizer()
