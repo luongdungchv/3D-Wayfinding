@@ -1,10 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.Utilities;
 
 public class LevelManager : MonoBehaviour
 {
+    public static LevelManager Instance;
     [SerializeField] private List<FloorLayer> listLayer;
+    [SerializeField] private List<Vector3> logResult;
+
+    private void Awake() {
+        Instance = this;
+        listLayer.ForEach((item, index) => item.SetLayerIndex(index));
+    }
 
     [Sirenix.OdinInspector.Button]
     public void FindPath(MapItem start, MapItem end){
@@ -15,6 +23,9 @@ public class LevelManager : MonoBehaviour
         else{
             var startLayerIndex = start.ParentLayer.LayerIndex;
             var endLayerIndex = end.ParentLayer.LayerIndex;
+            RecursivelyFindPath(start, end, 0, new List<Vector3>(), out var result);
+            this.logResult = result;
+            PathVisualizer.Instance.VisualizePath(result);
         }
     }
 
@@ -45,6 +56,7 @@ public class LevelManager : MonoBehaviour
                 foreach(var connector in distancesToConnectors.Keys){
                     var nextLayer = start.ParentLayer.LayerIndex < end.ParentLayer.LayerIndex ? connector.UpperLayer : connector.LowerLayer;
                     var nextConnector = start.ParentLayer.LayerIndex < end.ParentLayer.LayerIndex ? connector.UpperEnd : connector.LowerEnd;
+                    Debug.Log((connector.name, nextLayer, nextConnector));
                     if(nextLayer == null) continue;
                     var (path, length) = distancesToConnectors[connector];
                     distList.Add(RecursivelyFindPath(nextConnector, end, currentDist + length, path, out var resultPath));

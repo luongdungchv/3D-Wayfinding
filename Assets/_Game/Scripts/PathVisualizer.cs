@@ -21,6 +21,7 @@ public class PathVisualizer : MonoBehaviour
             lengthArray[i] = Vector3.Distance(pathNodes[i], pathNodes[i + 1]);
         }
         lineMaterial.SetFloatArray("_LengthArray", lengthArray);
+        lineRenderer.positionCount = pathNodes.Count;
         lineRenderer.SetPositions(pathNodes.ToArray());
     }
 

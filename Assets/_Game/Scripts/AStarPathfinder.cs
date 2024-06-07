@@ -51,7 +51,12 @@ public class AStarPathfinder
 
                 var g = CalculateManhattan(coord, start);
                 var h = CalculateManhattan(coord, end);
-                open.Add(coord, new Node(coord, g, h, node));
+                if(!open.ContainsKey(coord)) open.Add(coord, new Node(coord, g, h, node));
+                else if(g + h < open[coord].f){
+                    open[coord].parent = node;
+                    open[coord].g = g;
+                    open[coord].h = h;
+                }
             }
         }
 

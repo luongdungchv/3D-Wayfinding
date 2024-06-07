@@ -78,6 +78,7 @@ Shader "Custom/Line"
 
             fixed4 frag (v2f i) : SV_Target
             {
+                return i.uv.x;
                 float2 uv = 1 - (i.uv % 1);
                 float isCorner = !(uv.x == 1 || uv.x == 0);
                 

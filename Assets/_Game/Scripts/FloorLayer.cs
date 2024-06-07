@@ -8,6 +8,8 @@ public class FloorLayer : MonoBehaviour
     [SerializeField] private GridSystem grid;
     [SerializeField] private List<MapItem> mapItemList;
     [SerializeField] private List<LayerConnector> layerConnectorList;
+    [SerializeField] private List<Vector2> logPath;
+    [SerializeField] private Transform floorCenter;
 
     private Dictionary<LayerConnector, List<DistanceInfo>> connectorDistanceMap;
 
@@ -16,16 +18,25 @@ public class FloorLayer : MonoBehaviour
     public int LayerIndex => this.layerIndex;
 
     private float height => transform.position.y;
+    public Vector3 FloorCenter => this.floorCenter.position;
 
     private void Awake()
     {
-        this.CalculateConnectorDistanceMap();
+        
     }
+
+    private void Start() {
+        this.CalculateConnectorDistanceMap();
+        this.BakeGrid();
+    }
+
+    public void SetLayerIndex(int index) => this.layerIndex = index;
 
     public List<Vector3> FindPathInLayer(Vector3 start, Vector3 end, bool visualize = false)
     {
         var path2D = grid.FindPath(start.ToVectorXZ(), end.ToVectorXZ());
         var path3D = path2D.Select(node => new Vector3(node.x, height, node.y)).ToList();
+        this.logPath = path2D;
         if (visualize) PathVisualizer.Instance.VisualizePath(path3D);
         return path3D;
     }
@@ -73,6 +84,10 @@ public class FloorLayer : MonoBehaviour
         var result = new Dictionary<LayerConnector, (List<Vector3>, float)>();
         foreach (var connector in this.layerConnectorList)
         {
+            if(start == connector.transform.position){
+                result.Add(connector, (new List<Vector3>(), 0));
+                continue;
+            }
             var path2D = grid.FindPath(start.ToVectorXZ(), connector.transform.position.ToVectorXZ());
             var totalLength = 0f;
             for (int i = 0; i < path2D.Count - 1; i++)
@@ -115,6 +130,14 @@ public class FloorLayer : MonoBehaviour
     public void AddMapItem(MapItem mapItem)
     {
         mapItemList.Add(mapItem);
+    }
+
+    private void BakeGrid(){
+        foreach (var item in mapItemList){
+            foreach(var collider in item.GetComponents<BoxCollider>()){
+                grid.AddRectangleObstacle(collider);
+            }
+        }
     }
 
     public struct DistanceInfo

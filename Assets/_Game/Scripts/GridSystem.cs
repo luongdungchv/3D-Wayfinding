@@ -22,10 +22,10 @@ public class GridSystem : MonoBehaviour
     private GameObject[,] visualizerMatrix;
     private int currentID = 1;
 
-    private void Start()
+    private void Awake()
     {
         this.Initialize();
-        this.AddRectangleObstacle(GameObject.Find("Test Obs").GetComponent<BoxCollider>());
+        //this.AddRectangleObstacle(GameObject.Find("Test Obs").GetComponent<BoxCollider>());
     }
 
     [Sirenix.OdinInspector.Button]
@@ -124,7 +124,7 @@ public class GridSystem : MonoBehaviour
 
         var result = new List<Vector2Int>();
 
-        Debug.Log((start, end, startCellCoord, endCellCoord, slope));
+        // Debug.Log((start, end, startCellCoord, endCellCoord, slope));
 
         var currentCoord = startCellCoord;
         result.Add(currentCoord);
@@ -161,7 +161,7 @@ public class GridSystem : MonoBehaviour
                     var p = currentCoord + Vector2Int.one;
                     var a1 = (p - start / cellSize).normalized;
                     var a2 = (end-start).normalized;
-                    Debug.Log((a1, a2, p));
+                    // Debug.Log((a1, a2, p));
                     if(a1.y > a2.y) result.Add(WorldToCellCoord(newPos.Set(y: start.y)));
                     else result.Add(WorldToCellCoord(newPos.Set(x: start.x)));
                 }
@@ -208,6 +208,7 @@ public class GridSystem : MonoBehaviour
         var cellEndCoord = WorldToCellCoord(end);
         var initResult = this.pathFinder.FindPath(this.occupationMatrix, cellStartCoord, cellEndCoord);
         var result = initResult.Select(x => (Vector2)x * cellSize + Vector2.one * cellSize / 2).ToList();
+        result.Reverse();
         return result;
     }
 
