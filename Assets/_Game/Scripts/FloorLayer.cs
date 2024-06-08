@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class FloorLayer : MonoBehaviour
+public class FloorLayer : Sirenix.OdinInspector.SerializedMonoBehaviour
 {
     [SerializeField] private GridSystem grid;
     [SerializeField] private List<MapItem> mapItemList;
@@ -11,7 +11,7 @@ public class FloorLayer : MonoBehaviour
     [SerializeField] private List<Vector2> logPath;
     [SerializeField] private Transform floorCenter;
 
-    private Dictionary<LayerConnector, List<DistanceInfo>> connectorDistanceMap;
+    [SerializeField] private Dictionary<LayerConnector, List<DistanceInfo>> connectorDistanceMap;
 
     private int layerIndex;
 
@@ -113,6 +113,7 @@ public class FloorLayer : MonoBehaviour
         foreach (var start in this.layerConnectorList)
         {
             var map = this.PathsToConnectors(start.transform.position);
+            Debug.Log(map);
             var distanceInfo = new List<DistanceInfo>();
             foreach (var connector in map.Keys)
             {
@@ -124,6 +125,7 @@ public class FloorLayer : MonoBehaviour
                 };
                 distanceInfo.Add(info);
             }
+            connectorDistanceMap.Add(start, distanceInfo);
         }
     }
 

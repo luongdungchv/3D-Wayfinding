@@ -43,11 +43,15 @@ public class LevelManager : MonoBehaviour
             if(start is LayerConnector){
                 var startConnector = start as LayerConnector;
                 var distanceInfos = start.ParentLayer.GetDistanceInfo(startConnector);
+                Debug.Log(start);
                 foreach(var info in distanceInfos){
                     var nextLayer = start.ParentLayer.LayerIndex < end.ParentLayer.LayerIndex ? info.connector.UpperLayer : info.connector.LowerLayer;
                     if(nextLayer == null) continue;
                     var nextConnector = start.ParentLayer.LayerIndex < end.ParentLayer.LayerIndex ? info.connector.UpperEnd : info.connector.LowerEnd;
-                    distList.Add(RecursivelyFindPath(nextConnector, end, currentDist + info.distance, info.path, out var resultPath));
+                    Debug.Log((info.connector.name, nextLayer, nextConnector));
+                    var path = new List<Vector3>(currentPath);
+                    path.AddRange(info.path);
+                    distList.Add(RecursivelyFindPath(nextConnector, end, currentDist + info.distance, path, out var resultPath));
                     pathList.Add(resultPath);
                 }
             }
@@ -59,7 +63,9 @@ public class LevelManager : MonoBehaviour
                     Debug.Log((connector.name, nextLayer, nextConnector));
                     if(nextLayer == null) continue;
                     var (path, length) = distancesToConnectors[connector];
-                    distList.Add(RecursivelyFindPath(nextConnector, end, currentDist + length, path, out var resultPath));
+                    var newPath = new List<Vector3>(currentPath);
+                    newPath.AddRange(path);
+                    distList.Add(RecursivelyFindPath(nextConnector, end, currentDist + length, newPath, out var resultPath));
                     pathList.Add(resultPath);
                 }
             }
@@ -76,5 +82,18 @@ public class LevelManager : MonoBehaviour
             result = minPath;
             return minDist;
         }
+    }
+    
+    public void ShowLayer(int index){
+        this.listLayer.ForEach(x => x.gameObject.SetActive(false));
+        this.listLayer[index].gameObject.SetActive(true);
+    }
+    public void ShowLayers(List<int> indices){
+        this.listLayer.ForEach(x => x.gameObject.SetActive(false));
+        indices.ForEach(x => this.listLayer[x].gameObject.SetActive(true));
+    }
+    
+    public FloorLayer GetLayer(int index){
+        return this.listLayer[index];
     }
 }
