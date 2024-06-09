@@ -16,7 +16,11 @@ public static class VectorUtils
         float angle = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
         if (angle < 0) angle += 360;
         //int angle = Mathf.RoundToInt(n);
-
+        return angle;
+    }
+    public static float GetAngleFromVector2D(Vector2 dir){
+        dir = dir.normalized;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         return angle;
     }
     public static float GetAngleFromVectorZX(Vector3 dir, bool negative = false){
@@ -64,5 +68,12 @@ public static class VectorUtils
     public static Vector3 ToVectorXZ(this Vector2 vector2)
     {
         return new Vector3(vector2.x, 0, vector2.y);
+    }
+    
+    public static Vector3 ZY(this Vector3 input){
+        return new Vector2(input.z, input.y);
+    }
+    public static Vector3 YZ(this Vector3 input){
+        return new Vector2(input.y, input.z);
     }
 }

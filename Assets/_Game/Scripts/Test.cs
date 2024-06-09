@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    [SerializeField] private FloorLayer testLayer;
-    [SerializeField] private GameObject start, end;
+    [SerializeField] private LevelManager testLevel;
+    [SerializeField] private MapItem start, end;
 
     [Sirenix.OdinInspector.Button]
     private void Testing(){
-        testLayer.FindPathInLayer(start.transform.position, end.transform.position, true);
+        testLevel.FindPath(start, end);
     }
 }

@@ -11,6 +11,8 @@ public class CameraController : MonoBehaviour, IDragHandler
     [SerializeField] private float rotateSensitivity, zoomSensitivity, moveSensitivity;
     [SerializeField] private int mode = 0; //0: rotate, 1: move;
     
+    public Quaternion PivotPosition => cameraPivot.rotation;
+    
     private void Awake(){
         Instance = this;
     }
@@ -52,7 +54,15 @@ public class CameraController : MonoBehaviour, IDragHandler
     {
         var targetPos = layer.FloorCenter;
         var eulerAngles = new Vector3(60, 0, 0);
-        this.transform.position = targetPos;
-        this.transform.rotation = Quaternion.Euler(eulerAngles);
+        this.cameraPivot.position = targetPos;
+        this.cameraPivot.rotation = Quaternion.Euler(eulerAngles);
+    }
+    
+    public void MovePivotTo(Vector3 dest){
+        this.cameraPivot.transform.position = dest;
+    }
+    
+    public void SwitchMode(int mode){
+        this.mode = mode;
     }
 }

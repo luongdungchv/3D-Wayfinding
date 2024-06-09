@@ -12,13 +12,15 @@ public class LevelManager : MonoBehaviour
     private void Awake() {
         Instance = this;
         listLayer.ForEach((item, index) => item.SetLayerIndex(index));
+        CameraController.Instance.SwitchTargetFloor(this.listLayer[0]);
+        this.ShowLayer(0);
     }
 
     [Sirenix.OdinInspector.Button]
     public void FindPath(MapItem start, MapItem end){
         if(start.ParentLayer == end.ParentLayer){
             var layer = start.ParentLayer;
-            layer.FindPathInLayer(start.transform.position, end.transform.position);
+            layer.FindPathInLayer(start.EntryPosition, end.EntryPosition);
         }
         else{
             var startLayerIndex = start.ParentLayer.LayerIndex;
@@ -32,7 +34,7 @@ public class LevelManager : MonoBehaviour
     private float RecursivelyFindPath(MapItem start, MapItem end, float currentDist, in List<Vector3> currentPath, out List<Vector3> result){
         if(start.ParentLayer == end.ParentLayer){
             var layer = start.ParentLayer;
-            var path = layer.FindPathInLayer(start.transform.position, end.transform.position, out var length);
+            var path = layer.FindPathInLayer(start.EntryPosition, end.EntryPosition, out var length);
             result = new List<Vector3>(currentPath);
             result.AddRange(path);
             return currentDist + length;
@@ -56,7 +58,7 @@ public class LevelManager : MonoBehaviour
                 }
             }
             else{
-                var distancesToConnectors = start.ParentLayer.PathsToConnectors(start.transform.position);
+                var distancesToConnectors = start.ParentLayer.PathsToConnectors(start.EntryPosition);
                 foreach(var connector in distancesToConnectors.Keys){
                     var nextLayer = start.ParentLayer.LayerIndex < end.ParentLayer.LayerIndex ? connector.UpperLayer : connector.LowerLayer;
                     var nextConnector = start.ParentLayer.LayerIndex < end.ParentLayer.LayerIndex ? connector.UpperEnd : connector.LowerEnd;
@@ -91,6 +93,9 @@ public class LevelManager : MonoBehaviour
     public void ShowLayers(List<int> indices){
         this.listLayer.ForEach(x => x.gameObject.SetActive(false));
         indices.ForEach(x => this.listLayer[x].gameObject.SetActive(true));
+    }
+    public void ShowAllLayers(){
+        this.listLayer.ForEach(x => x.gameObject.SetActive(true));   
     }
     
     public FloorLayer GetLayer(int index){

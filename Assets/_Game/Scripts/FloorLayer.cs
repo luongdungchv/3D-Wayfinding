@@ -62,7 +62,7 @@ public class FloorLayer : Sirenix.OdinInspector.SerializedMonoBehaviour
         var minDist = float.MaxValue;
         foreach (var connector in this.layerConnectorList)
         {
-            var path2D = grid.FindPath(start.ToVectorXZ(), connector.transform.position.ToVectorXZ());
+            var path2D = grid.FindPath(start.ToVectorXZ(), connector.EntryPosition.ToVectorXZ());
             var totalLength = 0f;
             for (int i = 0; i < path2D.Count - 1; i++)
             {
@@ -84,11 +84,11 @@ public class FloorLayer : Sirenix.OdinInspector.SerializedMonoBehaviour
         var result = new Dictionary<LayerConnector, (List<Vector3>, float)>();
         foreach (var connector in this.layerConnectorList)
         {
-            if(start == connector.transform.position){
+            if(start == connector.EntryPosition){
                 result.Add(connector, (new List<Vector3>(), 0));
                 continue;
             }
-            var path2D = grid.FindPath(start.ToVectorXZ(), connector.transform.position.ToVectorXZ());
+            var path2D = grid.FindPath(start.ToVectorXZ(), connector.EntryPosition.ToVectorXZ());
             var totalLength = 0f;
             for (int i = 0; i < path2D.Count - 1; i++)
             {
@@ -112,7 +112,7 @@ public class FloorLayer : Sirenix.OdinInspector.SerializedMonoBehaviour
         connectorDistanceMap.Clear();
         foreach (var start in this.layerConnectorList)
         {
-            var map = this.PathsToConnectors(start.transform.position);
+            var map = this.PathsToConnectors(start.EntryPosition);
             Debug.Log(map);
             var distanceInfo = new List<DistanceInfo>();
             foreach (var connector in map.Keys)
