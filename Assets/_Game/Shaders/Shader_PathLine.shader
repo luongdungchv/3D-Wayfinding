@@ -3,16 +3,8 @@ Shader "Custom/Line"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _BlurTex ("Blur Texture", 2D) = "white" {}
-        _BlurColor ("Blur Color", Color) = (1,1,1,1)
-        _Scale("Scale", Range(0, 255)) = 1
-        _Duration("Duration", Range(0, 255)) = 1
-        [HDR] _Color ("Shine Color", Color) = (1,1,1,1)
-        _ShineRange("Shine Range", Range(0, 255)) = 1
-        _ShineDistance("Shine Distance", Range(0, 255)) = 1
-        _Frequency ("Frequency", Range(0, 255)) = 1
-        _Power ("Power", Float) = 1
-        _Gap ("Gap", Float) = 1
+        _Width ("Width", Float) = 1
+        _Color ("Color", Color) = (1,1,1,1)
         
         [IntRange] _StencilRef ("Stencil Reference Value", Range(0,255)) = 0
         [IntRange] _StencilComp ("Stencil Comp", Range(0,8)) = 0
@@ -56,17 +48,10 @@ Shader "Custom/Line"
             };
 
             sampler2D _MainTex, _BlurTex;
-            float4 _MainTex_ST;
-            float _Scale;
-            float _Duration;
-            float4 _Color, _BlurColor;
-            float _ShineRange;
-            float _ShineDistance;
-            float _Frequency;
-            float _Power;
-            float _Gap;
             
-            float _LengthArray[256];
+            float _Width;           
+            float _Length;
+            float4 _Color;
 
             v2f vert (appdata v)
             {
@@ -78,33 +63,10 @@ Shader "Custom/Line"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                return i.uv.x;
-                float2 uv = 1 - (i.uv % 1);
-                float isCorner = !(uv.x == 1 || uv.x == 0);
-                
-                float length = _LengthArray[(int)i.uv.x] * 1;
-                
-                uv.x *= length;
-                float mult = 1 - step(0.1, (int)uv.x % 2);
-                mult *= isCorner;
-                
-                float isCut = ((int)(uv.x / 1) == (int)(length - 0.01)) && (uv.x % 1 < 0.98);
-                
-                uv.x = uv.x % 1; 
-                uv.x = 1 - uv.x;
-                //uv.x *= mult;
-                uv.x *= isCorner;
-                
-                fixed4 col = tex2D(_MainTex, uv);
+                i.uv.x *= _Length / _Width;
+                float4 col = tex2D(_MainTex, i.uv);
                 col *= _Color;
-                
-                half blurAlpha = tex2D(_BlurTex, uv).a;
-                float mask = step(0.96, col.r);
-                blurAlpha -= mask;
-                half4 blurCol = half4(_BlurColor.rgb, blurAlpha);
-                
-                col += saturate(blurCol);
-                return col * !isCut;
+                return col;
             }
             ENDCG
         }

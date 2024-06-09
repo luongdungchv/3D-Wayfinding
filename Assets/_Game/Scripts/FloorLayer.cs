@@ -25,7 +25,7 @@ public class FloorLayer : Sirenix.OdinInspector.SerializedMonoBehaviour
         
     }
 
-    private void Start() {
+    public void Init() {
         this.CalculateConnectorDistanceMap();
         this.BakeGrid();
     }

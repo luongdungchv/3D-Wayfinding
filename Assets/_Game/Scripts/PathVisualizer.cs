@@ -16,11 +16,11 @@ public class PathVisualizer : MonoBehaviour
     private LineRenderer lineRenderer => this.GetComponent<LineRenderer>();
 
     public void VisualizePath(List<Vector3> pathNodes){
-        var lengthArray = new float[256];
+        float totalLength = 0;
         for(int i = 0; i < pathNodes.Count - 1; i++){
-            lengthArray[i] = Vector3.Distance(pathNodes[i], pathNodes[i + 1]);
+            totalLength += Vector3.Distance(pathNodes[i], pathNodes[i + 1]);
         }
-        lineMaterial.SetFloatArray("_LengthArray", lengthArray);
+        lineMaterial.SetFloat("_Length", totalLength);
         lineRenderer.positionCount = pathNodes.Count;
         lineRenderer.SetPositions(pathNodes.ToArray());
     }

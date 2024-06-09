@@ -10,10 +10,11 @@ public class CameraController : MonoBehaviour, IDragHandler
     [SerializeField] private Camera mainCam;
     [SerializeField] private float rotateSensitivity, zoomSensitivity, moveSensitivity;
     [SerializeField] private int mode = 0; //0: rotate, 1: move;
-    
+
     public Quaternion PivotPosition => cameraPivot.rotation;
-    
-    private void Awake(){
+
+    private void Awake()
+    {
         Instance = this;
     }
 
@@ -27,17 +28,28 @@ public class CameraController : MonoBehaviour, IDragHandler
             eulerAngles.x -= x;
             eulerAngles.y += y;
 
-            eulerAngles.x = Mathf.Clamp(eulerAngles.x, 40, 90);
+            eulerAngles.x = Mathf.Clamp(eulerAngles.x, 30, 90);
 
             cameraPivot.transform.rotation = Quaternion.Euler(eulerAngles);
         }
-        else if (mode == 1){
+        else if (mode == 1)
+        {
             var x = eventData.delta.x * moveSensitivity;
             var y = eventData.delta.y * moveSensitivity;
-            
+
             var pos = cameraPivot.transform.position;
             pos.x -= x;
             pos.z -= y;
+            cameraPivot.transform.position = pos;
+        }
+        else if (mode == 2)
+        {
+            var x = -eventData.delta.x * moveSensitivity;
+            var y = -eventData.delta.y * moveSensitivity;
+
+            var pos = cameraPivot.transform.position;
+            var offset = transform.up * y + transform.right * x;
+            pos += offset;
             cameraPivot.transform.position = pos;
         }
     }
@@ -57,12 +69,21 @@ public class CameraController : MonoBehaviour, IDragHandler
         this.cameraPivot.position = targetPos;
         this.cameraPivot.rotation = Quaternion.Euler(eulerAngles);
     }
-    
-    public void MovePivotTo(Vector3 dest){
+
+    public void MovePivotTo(Vector3 dest)
+    {
         this.cameraPivot.transform.position = dest;
     }
-    
-    public void SwitchMode(int mode){
+
+    public void SwitchMode(int mode)
+    {
         this.mode = mode;
+    }
+    
+    public void SetRotation(Vector3 eulers){
+        cameraPivot.transform.rotation = Quaternion.Euler(eulers);
+    }
+    public void SetCameraZ(float z){
+        this.mainCam.transform.localPosition = mainCam.transform.localPosition.Set(z: z);
     }
 }

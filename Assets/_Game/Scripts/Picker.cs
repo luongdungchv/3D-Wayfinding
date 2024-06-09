@@ -6,20 +6,24 @@ using TMPro;
 
 public class Picker : MonoBehaviour
 {
+    public static Picker Instance;
     [SerializeField] private LayerMask mask;
     [SerializeField] private TMP_Text textNoti;
 
     [SerializeField] private GameObject startPrompter, destPrompter;
-    [SerializeField] private Button btnSetStart, btnSetDest;
+    [SerializeField] private Button btnSetStart, btnSetDest, btnReturn;
 
     [SerializeField] private MapItem selectedStart;
     [SerializeField] private MapItem selectedEnd;
+    
+    public bool IsInViewPathMode => selectedEnd != null && selectedStart != null;
     private MapItem pendingSelect;
 
     private Camera mainCam;
 
     private void Awake()
     {
+        Instance = this;
         mainCam = Camera.main;
         btnSetStart.onClick.AddListener(() => {
             Debug.Log("start click");
@@ -32,14 +36,35 @@ public class Picker : MonoBehaviour
             Debug.Log("end Click");
             this.selectedEnd = pendingSelect;
             pendingSelect = null;
-            LevelManager.Instance.ShowAllLayers();
+            //LevelManager.Instance.ShowAllLayers();
+            var startIndex = selectedStart.ParentLayer.LayerIndex;
+            var endIndex = selectedEnd.ParentLayer.LayerIndex;
+            var plus = startIndex > endIndex ? -1 : 1;
+            var showLayers = new List<int>();
+            for(int i = selectedStart.ParentLayer.LayerIndex; i != endIndex + plus; i += plus){
+                showLayers.Add(i);
+            }
+            LevelManager.Instance.ShowLayers(showLayers);
             LevelManager.Instance.FindPath(this.selectedStart, this.selectedEnd);
             this.destPrompter.SetActive(false);
+            
+            var medianPos = (selectedStart.ParentLayer.FloorCenter + selectedEnd.ParentLayer.FloorCenter) / 2;
+            CameraController.Instance.MovePivotTo(medianPos);
+            CameraController.Instance.SwitchMode(2);
+            CameraController.Instance.SetCameraZ(-45);
+            CameraController.Instance.SetRotation(new Vector3(40, 0, 0));
+            btnReturn.gameObject.SetActive(true);
+        });
+        btnReturn.onClick.AddListener(() =>{
+            this.Clear();
+            btnReturn.gameObject.SetActive(false); 
         });
     }
 
     public void Clear()
     {
+        CameraController.Instance.SwitchMode(0);
+        CameraController.Instance.MovePivotTo(selectedStart.ParentLayer.FloorCenter);
         this.selectedEnd = null;
         this.selectedStart = null;
         pendingSelect = null;

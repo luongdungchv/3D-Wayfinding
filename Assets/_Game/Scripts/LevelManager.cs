@@ -11,9 +11,17 @@ public class LevelManager : MonoBehaviour
 
     private void Awake() {
         Instance = this;
-        listLayer.ForEach((item, index) => item.SetLayerIndex(index));
+        listLayer.ForEach((item, index) => {
+            item.SetLayerIndex(index);
+        });
         CameraController.Instance.SwitchTargetFloor(this.listLayer[0]);
-        this.ShowLayer(0);
+        
+        
+    }
+    private void Start(){
+        listLayer.ForEach((item, index) => {
+            item.Init();
+        });
     }
 
     [Sirenix.OdinInspector.Button]
